@@ -12,7 +12,8 @@ from causallearn.utils.GraphUtils import GraphUtils
 from sklearn.preprocessing import StandardScaler
 from causallearn.score.LocalScoreFunction import local_score_BDeu
 from causallearn.score.LocalScoreFunction import local_score_BIC
-
+from pgmpy.estimators import PC
+from pgmpy.estimators import GES
 
 #RUN FCI GES PC
 #All discrete, all continous, mixed 
@@ -71,30 +72,41 @@ def discrete_only(df,algo='FCI',a = 0.01):
     else:
         print("No match check args")
 def mixed_data (df,algo = 'FCI' , a = 0.05):
-    cols_to_norm = ['nodes_alloc', 
-    'cpus_alloc', 
-    'mem_alloc', 
-    'num_alloc_gpus',
-    'runtime',
+    cols_to_norm = [
+    #'nodes_alloc', 
+    #'cpus_alloc', 
+    #'mem_alloc', 
+    #'num_alloc_gpus',
+    #'runtime',
     'system_load',
-    'node_hours',
-    'user_job_frequency'] 
+    #'node_hours',
+    #'user_job_frequency'
+    ] 
     select_cols = ['nodes_alloc', 
         'cpus_alloc', 
         'mem_alloc', 
         'num_alloc_gpus',
-        'runtime',
+        #'runtime',
         'system_load',
-        'node_hours',
+        #'node_hours',
         'user_job_frequency',
+        'id_user',
         'status'] 
+    df['id_user'] = df['id_user'].astype('category')
     df_res = df[select_cols]
     del df
     scaler = StandardScaler()
     df_res[cols_to_norm] = scaler.fit_transform(df_res[cols_to_norm]) 
     data = df_res.to_numpy()
 
-
+    if algo.upper() == 'PC_MIXED':
+        print('RUnning PC Mixed')
+        estimated_pdag = PC(df_res).estimate(ci_test='pillai',variant= 'stable')
+        estimated_pdag.to_graphviz().draw('pc_mixed_pillai.png', prog='dot')
+    if algo.upper() == 'GES_MIXED':
+        print('RUnning GES Mixed')
+        estimated_pdag = GES(df_res).estimate(scoring_method='bic-cg')        
+        estimated_pdag.to_graphviz().draw('ges_mixed_bic.png', prog='dot')
     if algo.upper() == 'FCI':
         print('RUnning FCI')
         g,edges = fci(data, fisherz, alpha= alpha)
@@ -119,7 +131,7 @@ if __name__ == "__main__" :
     type_of_method=sys.argv[1]
     algo = sys.argv[2]
     alpha = float(sys.argv[3])
-    path = "/home/cc/CS520_Project/slurm_log_buff.csv"
+    path = "/home/armaan10/Desktop/UIC_MS/coursework/CS_520/CS520_Project/slurm_log_buff.csv"
     df = pd.read_csv(path)
     print(type(alpha))
     if type_of_method =="dis":
