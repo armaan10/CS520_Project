@@ -74,7 +74,7 @@ pooled["log_walltime"]  = log1p(pooled[COL_WALL])    if COL_WALL in pooled.colum
 if COL_DURSEC in pooled.columns:
     pooled["log_duration"] = log1p(pooled[COL_DURSEC])
 
-# -------- Page 1.A: job counts + fail rate over time --------
+# -------- job counts + fail rate over time --------
 ts_col = COL_START if COL_START in pooled.columns else (COL_END if COL_END in pooled.columns else None)
 if ts_col is not None:
     ts = pooled[[ts_col, "EXIT_FAIL"]].dropna(subset=[ts_col]).copy()
@@ -94,7 +94,7 @@ if ts_col is not None:
     fig.savefig(os.path.join(OUTDIR, "counts_failrate_by_week.png"), dpi=200)
     plt.close(fig)
 
-# -------- Page 1.B: pooled distributions (log) --------
+# --------  pooled distributions (log) --------
 cols_for_dist = []
 if "log_walltime" in pooled.columns: cols_for_dist.append("log_walltime")
 if "log_runtime" in pooled.columns:  cols_for_dist.append("log_runtime")
@@ -110,7 +110,7 @@ if cols_for_dist:
     fig.savefig(os.path.join(OUTDIR, "dist_pooled_log_walltime_runtime_duration.png"), dpi=200)
     plt.close(fig)
 
-# -------- Page 2: Pearson / Spearman / Nonlinearity (pooled) --------
+# --------  Pearson / Spearman / Nonlinearity (pooled) --------
 heat_vars = BASE_NUMS.copy()
 if COL_DURSEC in pooled.columns:
     heat_vars.append(COL_DURSEC)
@@ -134,7 +134,7 @@ plot_heat(pear,  "Pearson (pooled)",   "heatmap_pearson_pooled.png")
 plot_heat(spear, "Spearman (pooled)",  "heatmap_spearman_pooled.png")
 plot_heat(nl,    "|Spearman|-|Pearson| (pooled)", "heatmap_nonlinearity_pooled.png")
 
-# -------- Page 3.A: yearly medians (runtime, walltime, nodes_used, fail rate) --------
+# -------- yearly medians (runtime, walltime, nodes_used, fail rate) --------
 year_ok = pooled["YEAR_TAG"].notna()
 if year_ok.any():
     Y = pooled.loc[year_ok, :]
@@ -160,7 +160,7 @@ if year_ok.any():
     fig.savefig(os.path.join(OUTDIR, "yearly_medians_runtime_walltime_nodesused_failrate.png"), dpi=200)
     plt.close(fig)
 
-# -------- Page 3.B: Request→Use funnels by year (hexbin) --------
+# -------- Request→Use funnels by year (hexbin) --------
 def panel_hex(df, x, y, fname, title):
     groups = list(df.groupby("YEAR_TAG"))
     if not groups: return
@@ -218,7 +218,7 @@ if year_ok.any():
         fig.savefig(os.path.join(OUTDIR, "funnel_walltime_runtime_by_year.png"), dpi=200)
         plt.close(fig)
 
-# -------- Page 4.A: fail rate by walltime decile (pooled) --------
+# -------- fail rate by walltime decile (pooled) --------
 if "log_walltime" in pooled.columns and "EXIT_FAIL" in pooled.columns:
     t = pooled[["log_walltime","EXIT_FAIL"]].dropna()
     if len(t) > 0:
@@ -232,7 +232,7 @@ if "log_walltime" in pooled.columns and "EXIT_FAIL" in pooled.columns:
         fig.savefig(os.path.join(OUTDIR, "failrate_by_walltime_decile_pooled.png"), dpi=200)
         plt.close(fig)
 
-# -------- Page 4.B: fail rate by queue (pooled, if available) --------
+# -------- fail rate by queue (pooled, if available) --------
 if COL_QUEUE in pooled.columns and "EXIT_FAIL" in pooled.columns:
     q = pooled[[COL_QUEUE,"EXIT_FAIL"]].dropna()
     if len(q) > 0:
