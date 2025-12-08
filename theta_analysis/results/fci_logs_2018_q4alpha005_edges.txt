@@ -1,0 +1,11 @@
+Variables (order): ['NODES_REQUESTED', 'CORES_REQUESTED', 'NODES_USED', 'CORES_USED', 'RUNTIME_SECONDS', 'WALLTIME_SECONDS', 'JOB_DURATION_SEC', 'EXIT_FAIL']
+Alpha: 0.05
+
+PAG edges:
+Graph Nodes:
+X1;X2;X3;X4;X5;X6;X7;X8
+
+Graph Edges:
+1. X5 o-o X7
+2. X6 o-o X8
+
